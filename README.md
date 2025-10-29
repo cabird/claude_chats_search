@@ -16,7 +16,8 @@ Before you can use this tool, you need to export your conversation data from Cla
 2. Select **"Settings"** from the menu
 3. Navigate to the **Privacy** section
 4. Click the **"Export data"** button
-5. Download the export file (it will include `conversations.json`)
+5. Download the **zip file** and extract it
+6. Find `conversations.json` inside the extracted folder
 
 **Note:** Data exports are available from the Claude web app or Claude Desktop. You can't export from the iOS or Android apps.
 

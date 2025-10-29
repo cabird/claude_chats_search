@@ -106,7 +106,8 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
                         <li>Select <strong>Settings</strong></li>
                         <li>Go to <strong>Privacy</strong> section</li>
                         <li>Click <strong>Export data</strong></li>
-                        <li>Download and drop the conversations.json file here</li>
+                        <li>Download the zip file and <strong>extract conversations.json</strong></li>
+                        <li>Drop the conversations.json file here</li>
                     </ol>
                     <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: '0.9' }}>Note: Export is only available on web or desktop app (not mobile)</p>
                 </div>
