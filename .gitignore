@@ -1,6 +1,9 @@
 # Conversation data files (personal data - do not commit)
 *.json
 
+# Personal guide files
+docs/
+
 # Python
 __pycache__/
 *.py[cod]
