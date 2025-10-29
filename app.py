@@ -16,8 +16,8 @@ with open('conversations.json', 'r') as f:
 
 @app.route('/')
 def index():
-    """Serve the main HTML file"""
-    return send_from_directory('.', 'index.html')
+    """Serve the Flask version HTML file"""
+    return send_from_directory('.', 'index_flask.html')
 
 @app.route('/components/<path:filename>')
 def serve_components(filename):

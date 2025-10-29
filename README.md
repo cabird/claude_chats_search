@@ -2,6 +2,12 @@
 
 A Flask web application with React frontend to search through your Claude conversation history by keywords.
 
+## 🚀 Quick Start
+
+**Try it now (no installation needed):** [https://cabird.github.io/claude_chats_search](https://cabird.github.io/claude_chats_search)
+
+Just drag and drop your `conversations.json` file to start searching!
+
 ## Features
 
 - **Fast keyword search** across conversation titles, summaries, and messages
@@ -50,15 +56,20 @@ Then open your browser to `http://localhost:5000` (or your custom port).
 .
 ├── app.py                      # Flask backend with search API
 ├── conversations.json          # Your conversation data
-├── index.html                  # Main HTML with React setup
+├── index.html                  # Static version (drag-and-drop)
+├── index_flask.html            # Flask version HTML
 ├── components/
 │   ├── Icon.js                 # Lucide icon wrapper
+│   ├── FileUpload.jsx          # Drag-and-drop file upload
 │   ├── SearchBox.jsx           # Search input component
 │   ├── ConversationCard.jsx    # Result card component
 │   ├── ConversationModal.jsx   # Full conversation modal with search
-│   └── App.jsx                 # Main app component
+│   ├── App.jsx                 # Flask app component
+│   └── AppStatic.jsx           # Static app component
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
+├── README_STATIC.md            # Static version documentation
+├── COMPARISON.md               # Flask vs Static comparison
 └── SCHEMA.md                   # Data schema documentation
 ```
 
