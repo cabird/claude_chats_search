@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Conversations Search</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            transition: all 0.2s;
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            color: #9ca3af;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            background: transparent;
+            color: #1f2937;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-options {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .stats {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .conversation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .conversation-card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            flex: 1;
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge.match-title { background: #dbeafe; color: #1e40af; }
+        .badge.match-summary { background: #fef3c7; color: #92400e; }
+        .badge.match-message { background: #d1fae5; color: #065f46; }
+        .badge.match-content { background: #e0e7ff; color: #3730a3; }
+
+        .card-summary {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .modal-title-section {
+            flex: 1;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .modal-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .modal-search {
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid #f3f4f6;
+            background: #f9fafb;
+            flex-shrink: 0;
+        }
+
+        .modal-search-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-search-input-wrapper:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            background: transparent;
+        }
+
+        .clear-search {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .clear-search:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .modal-search-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .match-counter {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-right: 0.5rem;
+        }
+
+        .nav-button {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            background: #f3f4f6;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .conversation-summary {
+            margin-bottom: 2rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            border: 2px solid #fbbf24;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: #92400e;
+        }
+
+        .summary-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .summary-text {
+            color: #78350f;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background: #f9fafb;
+        }
+
+        .message.human {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .message.assistant {
+            background: #f0fdf4;
+            border-left: 3px solid #10b981;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-sender {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .message.human .message-sender {
+            color: #1e40af;
+        }
+
+        .message.assistant .message-sender {
+            color: #047857;
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .message-text {
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        mark.highlight {
+            background: #fef08a;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        mark.highlight.current-match {
+            background: #fde047;
+            box-shadow: 0 0 0 2px #facc15;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+            }
+
+            .card-badges {
+                width: 100%;
+            }
+
+            .card-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .modal-container {
+                max-height: 95vh;
+            }
+
+            .modal-title {
+                font-size: 1.25rem;
+            }
+
+            .modal-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Initialize namespace -->
+    <script>window.App = {};</script>
+
+    <!-- Load components -->
+    <script type="text/babel" src="components/Icon.js"></script>
+    <script type="text/babel" src="components/ConversationCard.jsx"></script>
+    <script type="text/babel" src="components/SearchBox.jsx"></script>
+    <script type="text/babel" src="components/ConversationModal.jsx"></script>
+    <script type="text/babel" src="components/App.jsx"></script>
+
+    <!-- Render app -->
+    <script type="text/babel">
+        ReactDOM.createRoot(document.getElementById('root')).render(<App.App />);
+    </script>
+</body>
+</html>
