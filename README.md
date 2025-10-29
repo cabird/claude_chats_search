@@ -24,6 +24,7 @@ Before you can use this tool, you need to export your conversation data from Cla
 ## Features
 
 - **📤 Drag & Drop** - Drop the zip file or conversations.json directly (auto-extracts from zip)
+- **💾 Automatic Storage** - Uploaded data saved to browser storage, persists between sessions
 - **🔍 Fast keyword search** across conversation titles, summaries, and messages
 - **🔎 Deep search mode** to search within detailed content blocks
 - **💬 Click-to-view modal** - Click any conversation card to view the full conversation
@@ -64,6 +65,11 @@ Visit [https://cabird.github.io/claude_chats_search](https://cabird.github.io/cl
 - ✅ **No server uploads** - The file is read directly in your browser
 - ✅ **No tracking** - No analytics or external requests (except CDN for React/Lucide)
 - ✅ **Works offline** - After loading the page once, it works without internet (except for CDN resources)
+- ✅ **Browser storage** - Your uploaded conversations are automatically saved to your browser's IndexedDB for convenience
+  - Data persists between sessions so you don't need to re-upload
+  - Uploading a new file replaces the stored data (doesn't add to it)
+  - You can delete stored data at any time with the "Delete Stored Data" button
+  - Storage is local to your browser - data never syncs or uploads anywhere
 
 ## Running Locally
 
@@ -161,13 +167,16 @@ Just upload the files to any web server - it's all static HTML/JS!
 ## FAQ
 
 **Q: Is my data safe?**
-A: Yes! Everything runs in your browser. Your conversations.json never leaves your computer.
+A: Yes! Everything runs in your browser. Your conversations.json never leaves your computer. Data is stored locally in your browser's IndexedDB for convenience, but it never syncs or uploads anywhere.
 
 **Q: Do I need an internet connection?**
-A: Only for the initial load (to fetch React and Lucide from CDN). After that, it works offline.
+A: Only for the initial load (to fetch React and Lucide from CDN). After that, it works offline. Your uploaded data is stored in your browser for future sessions.
 
 **Q: Can I search multiple conversation files?**
-A: Not yet, but you can load different files one at a time using the "Load Different File" button.
+A: Not yet, but you can load different files one at a time using the "Load Different File" button. Each upload replaces the previously stored data.
+
+**Q: How do I delete my stored data?**
+A: Click the "Delete Stored Data" button in the header after loading your conversations. This will remove all stored conversation data from your browser.
 
 **Q: What's the difference between the static and Flask versions?**
 A: See [COMPARISON.md](COMPARISON.md). TL;DR: Static version (default) runs in your browser with drag-and-drop. Flask version requires Python and pre-loads data on the server.

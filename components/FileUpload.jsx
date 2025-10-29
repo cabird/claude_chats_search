@@ -134,6 +134,10 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
                         <li>Drop the <strong>zip file</strong> here (or extract and upload conversations.json)</li>
                     </ol>
                     <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: '0.9' }}>Note: Export is only available on web or desktop app (not mobile)</p>
+                    <p style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '0.85rem', opacity: '0.9' }}>
+                        <strong>🔒 Privacy:</strong> Your uploaded data is automatically saved to your browser's local storage for convenience.
+                        Your data never leaves your computer. You can delete the stored data at any time using the "Delete Stored Data" button.
+                    </p>
                 </div>
             </div>
         </div>

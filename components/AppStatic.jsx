@@ -1,5 +1,5 @@
-const { useState, useCallback } = React;
-const { FileUpload, SearchBox, ConversationCard, ConversationModal, Icon } = App;
+const { useState, useCallback, useEffect } = React;
+const { FileUpload, SearchBox, ConversationCard, ConversationModal, Icon, StorageUtils } = App;
 
 App.AppStatic = function AppStatic() {
     const [conversations, setConversations] = useState(null);
@@ -7,11 +7,62 @@ App.AppStatic = function AppStatic() {
     const [isSearching, setIsSearching] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [selectedConversation, setSelectedConversation] = useState(null);
+    const [dataSource, setDataSource] = useState(null); // 'storage' or 'upload'
+    const [isLoadingStorage, setIsLoadingStorage] = useState(true);
 
-    const handleFileLoaded = useCallback((data) => {
-        setConversations(data);
-        setResults([]);
-        setHasSearched(false);
+    // Check for stored data on mount
+    useEffect(() => {
+        const loadStoredData = async () => {
+            try {
+                const hasData = await StorageUtils.hasStoredData();
+                if (hasData) {
+                    const storedConversations = await StorageUtils.loadConversations();
+                    setConversations(storedConversations);
+                    setDataSource('storage');
+                }
+            } catch (error) {
+                console.error('Error loading stored data:', error);
+            } finally {
+                setIsLoadingStorage(false);
+            }
+        };
+
+        loadStoredData();
+    }, []);
+
+    const handleFileLoaded = useCallback(async (data) => {
+        try {
+            // Save to IndexedDB
+            await StorageUtils.saveConversations(data);
+            setConversations(data);
+            setResults([]);
+            setHasSearched(false);
+            setDataSource('upload');
+        } catch (error) {
+            console.error('Error saving conversations to storage:', error);
+            // Still set the conversations even if storage fails
+            setConversations(data);
+            setResults([]);
+            setHasSearched(false);
+            setDataSource('upload');
+        }
+    }, []);
+
+    const handleClearStorage = useCallback(async () => {
+        if (!confirm('Are you sure you want to delete all stored conversation data? This cannot be undone.')) {
+            return;
+        }
+
+        try {
+            await StorageUtils.clearAllData();
+            setConversations(null);
+            setResults([]);
+            setHasSearched(false);
+            setDataSource(null);
+        } catch (error) {
+            console.error('Error clearing storage:', error);
+            alert('Failed to clear storage. Please try again.');
+        }
     }, []);
 
     const searchConversations = useCallback((keyword, deep) => {
@@ -103,6 +154,20 @@ App.AppStatic = function AppStatic() {
         setSelectedConversation(null);
     }, []);
 
+    if (isLoadingStorage) {
+        return (
+            <div className="container">
+                <header className="header">
+                    <h1>Claude Conversations Search</h1>
+                    <p>Loading stored data...</p>
+                </header>
+                <div className="loading">
+                    <div className="spinner"></div>
+                </div>
+            </div>
+        );
+    }
+
     if (!conversations) {
         return (
             <div className="container">
@@ -121,13 +186,35 @@ App.AppStatic = function AppStatic() {
             <header className="header">
                 <h1>Claude Conversations Search</h1>
                 <p>Searching {conversations.length} conversations</p>
-                <button
-                    className="reload-button"
-                    onClick={() => setConversations(null)}
-                >
-                    <Icon name="RotateCcw" size={16} />
-                    Load Different File
-                </button>
+                <div className="header-actions">
+                    {dataSource === 'storage' && (
+                        <div className="data-source-badge">
+                            <Icon name="Database" size={14} />
+                            Loaded from browser storage
+                        </div>
+                    )}
+                    {dataSource === 'upload' && (
+                        <div className="data-source-badge upload">
+                            <Icon name="Upload" size={14} />
+                            Newly uploaded (saved to storage)
+                        </div>
+                    )}
+                    <button
+                        className="reload-button"
+                        onClick={() => setConversations(null)}
+                    >
+                        <Icon name="RotateCcw" size={16} />
+                        Load Different File
+                    </button>
+                    <button
+                        className="delete-button"
+                        onClick={handleClearStorage}
+                        title="Delete stored conversation data"
+                    >
+                        <Icon name="Trash2" size={16} />
+                        Delete Stored Data
+                    </button>
+                </div>
             </header>
 
             <SearchBox
