@@ -99,7 +99,17 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
 
             <div className="upload-help">
                 <Icon name="Info" size={16} />
-                <p>Upload a conversations.json file exported from Claude to search through your conversation history</p>
+                <div>
+                    <p style={{ marginBottom: '0.75rem', fontWeight: '600' }}>How to export your conversations from Claude:</p>
+                    <ol style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                        <li>Click your <strong>initials</strong> (lower left corner)</li>
+                        <li>Select <strong>Settings</strong></li>
+                        <li>Go to <strong>Privacy</strong> section</li>
+                        <li>Click <strong>Export data</strong></li>
+                        <li>Download and drop the conversations.json file here</li>
+                    </ol>
+                    <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: '0.9' }}>Note: Export is only available on web or desktop app (not mobile)</p>
+                </div>
             </div>
         </div>
     );
