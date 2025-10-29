@@ -9,8 +9,11 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
     const handleFile = useCallback(async (file) => {
         if (!file) return;
 
-        if (!file.name.endsWith('.json')) {
-            setError('Please upload a JSON file');
+        const isZip = file.name.endsWith('.zip');
+        const isJson = file.name.endsWith('.json');
+
+        if (!isZip && !isJson) {
+            setError('Please upload a ZIP file or JSON file');
             return;
         }
 
@@ -18,8 +21,30 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
         setError(null);
 
         try {
-            const text = await file.text();
-            const data = JSON.parse(text);
+            let jsonText;
+
+            if (isZip) {
+                // Handle ZIP file
+                if (!window.JSZip) {
+                    throw new Error('JSZip library not loaded');
+                }
+
+                const arrayBuffer = await file.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+
+                // Find conversations.json in the zip
+                const conversationsFile = zip.file('conversations.json');
+                if (!conversationsFile) {
+                    throw new Error('conversations.json not found in ZIP file');
+                }
+
+                jsonText = await conversationsFile.async('string');
+            } else {
+                // Handle JSON file directly
+                jsonText = await file.text();
+            }
+
+            const data = JSON.parse(jsonText);
 
             // Validate it looks like conversations data
             if (!Array.isArray(data)) {
@@ -78,11 +103,11 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
                 ) : (
                     <div className="upload-content">
                         <Icon name="Upload" size={48} />
-                        <h3>Drop your conversations.json file here</h3>
-                        <p>or click to browse</p>
+                        <h3>Drop your export file here</h3>
+                        <p>Accepts .zip or conversations.json</p>
                         <input
                             type="file"
-                            accept=".json"
+                            accept=".json,.zip"
                             onChange={handleFileSelect}
                             className="file-input"
                         />
@@ -106,8 +131,7 @@ App.FileUpload = function FileUpload({ onFileLoaded }) {
                         <li>Select <strong>Settings</strong></li>
                         <li>Go to <strong>Privacy</strong> section</li>
                         <li>Click <strong>Export data</strong></li>
-                        <li>Download the zip file and <strong>extract conversations.json</strong></li>
-                        <li>Drop the conversations.json file here</li>
+                        <li>Drop the <strong>zip file</strong> here (or extract and upload conversations.json)</li>
                     </ol>
                     <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: '0.9' }}>Note: Export is only available on web or desktop app (not mobile)</p>
                 </div>
