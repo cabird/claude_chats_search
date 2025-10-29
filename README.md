@@ -8,6 +8,18 @@ A Flask web application with React frontend to search through your Claude conver
 
 Just drag and drop your `conversations.json` file to start searching!
 
+## How to Export Your Conversations from Claude
+
+Before you can use this tool, you need to export your conversation data from Claude:
+
+1. Click on your **initials** in the lower left corner of your Claude account
+2. Select **"Settings"** from the menu
+3. Navigate to the **Privacy** section
+4. Click the **"Export data"** button
+5. Download the export file (it will include `conversations.json`)
+
+**Note:** Data exports are available from the Claude web app or Claude Desktop. You can't export from the iOS or Android apps.
+
 ## Features
 
 - **Fast keyword search** across conversation titles, summaries, and messages
